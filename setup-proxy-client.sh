@@ -23,7 +23,12 @@ rm /tmp/BigCat.Proxy.Client.zip
 echo "Granting execute permission to $INSTALL_DIR/BigCat.Proxy.Client"
 chmod +x "$INSTALL_DIR/BigCat.Proxy.Client"
 
-echo "🔹 Creating systemd service..."
+echo "🔹 Stopping and removing old proxy-client service if exists..."
+sudo systemctl stop proxy-client 2>/dev/null || true
+sudo systemctl disable proxy-client 2>/dev/null || true
+sudo rm -f /etc/systemd/system/proxy-client.service
+
+echo "🔹 Creating new systemd service..."
 SERVICE_FILE="/etc/systemd/system/proxy-client.service"
 sudo tee "$SERVICE_FILE" > /dev/null <<EOF
 [Unit]
@@ -58,13 +63,11 @@ StandardError=append:/var/log/proxy-client-error.log
 WantedBy=multi-user.target
 EOF
 
-echo "🔹 Stopping and removing old proxy-client service if exists..."
-sudo systemctl stop proxy-client 2>/dev/null || true
-sudo systemctl disable proxy-client 2>/dev/null || true
-sudo rm -f /etc/systemd/system/proxy-client.service
-
 echo "🔹 Reloading systemd..."
 sudo systemctl daemon-reload
+
+echo "🔹 Setting execute permissions..."
+chmod +x /config/proxy-service/client/BigCat.Proxy.Client
 
 echo "🔹 Enabling and starting service..."
 sudo systemctl enable --now proxy-client
