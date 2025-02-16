@@ -20,7 +20,7 @@ echo "🔹 Extracting files..."
 unzip -o /tmp/BigCat.Proxy.Client.zip -d "$INSTALL_DIR"
 rm /tmp/BigCat.Proxy.Client.zip
 
-echo "Granting execute permission to BigCat.Proxy.Client in $INSTALL_DIR"
+echo "Granting execute permission to $INSTALL_DIR/BigCat.Proxy.Client"
 chmod +x "$INSTALL_DIR/BigCat.Proxy.Client"
 
 echo "🔹 Creating systemd service..."
@@ -35,6 +35,7 @@ Environment="LD_LIBRARY_PATH=/config/proxy-service/client"
 Type=simple
 User=root
 WorkingDirectory=$INSTALL_DIR
+ExecStartPre=/bin/chmod +x $INSTALL_DIR/BigCat.Proxy.Client
 ExecStart=$INSTALL_DIR/BigCat.Proxy.Client \
     --defaultServerEndPointIP=$PUBLIC_IP \
     --portAPI=9000 \
