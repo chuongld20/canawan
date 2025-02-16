@@ -29,6 +29,9 @@ sudo systemctl disable proxy-client 2>/dev/null || true
 
 echo "🔹 Creating new systemd service..."
 SERVICE_FILE="/etc/systemd/system/proxy-client.service"
+sudo rm -f SERVICE_FILE
+
+
 sudo tee "$SERVICE_FILE" > /dev/null <<EOF
 [Unit]
 Description=Proxy Client Service
@@ -61,6 +64,7 @@ StandardError=append:/var/log/proxy-client-error.log
 [Install]
 WantedBy=multi-user.target
 EOF
+"sudo chmod 644 $SERVICE_FILE"
 
 echo "🔹 Reloading systemd..."
 sudo systemctl daemon-reload
