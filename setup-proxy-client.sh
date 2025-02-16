@@ -58,8 +58,15 @@ StandardError=append:/var/log/proxy-client-error.log
 WantedBy=multi-user.target
 EOF
 
-echo "🔹 Enabling and starting service..."
+echo "🔹 Stopping and removing old proxy-client service if exists..."
+sudo systemctl stop proxy-client 2>/dev/null || true
+sudo systemctl disable proxy-client 2>/dev/null || true
+sudo rm -f /etc/systemd/system/proxy-client.service
+
+echo "🔹 Reloading systemd..."
 sudo systemctl daemon-reload
+
+echo "🔹 Enabling and starting service..."
 sudo systemctl enable --now proxy-client
 
 echo "✅ Installation complete! Check service status with:"
