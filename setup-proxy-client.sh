@@ -26,7 +26,6 @@ chmod +x "$INSTALL_DIR/BigCat.Proxy.Client"
 echo "🔹 Stopping and removing old proxy-client service if exists..."
 sudo systemctl stop proxy-client 2>/dev/null || true
 sudo systemctl disable proxy-client 2>/dev/null || true
-sudo rm -f /etc/systemd/system/proxy-client.service
 
 echo "🔹 Creating new systemd service..."
 SERVICE_FILE="/etc/systemd/system/proxy-client.service"
