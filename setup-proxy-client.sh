@@ -2,7 +2,7 @@
 
 set -e  # Exit immediately if any command fails
 
-echo "🔹 Detecting server public IP..."
+echo "✅ Detecting server public IP..."
 PUBLIC_IP=$(curl -s4 ifconfig.me || curl -s4 icanhazip.com)
 echo "   → Detected IP: $PUBLIC_IP"
 
