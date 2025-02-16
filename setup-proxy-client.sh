@@ -20,6 +20,8 @@ echo "🔹 Extracting files..."
 unzip -o /tmp/BigCat.Proxy.Client.zip -d "$INSTALL_DIR"
 rm /tmp/BigCat.Proxy.Client.zip
 
+chmod +x "$INSTALL_DIR/BigCat.Proxy.Client"
+
 echo "🔹 Creating systemd service..."
 SERVICE_FILE="/etc/systemd/system/proxy-client.service"
 sudo tee "$SERVICE_FILE" > /dev/null <<EOF
