@@ -81,6 +81,9 @@ sudo chmod +x /config/proxy-service/client/BigCat.Proxy.Client
 echo "🔹 Enabling and starting service..."
 sudo systemctl enable --now proxy-client
 
+echo "🔹 Restarting network interface ens6"
+"sudo netplan apply && sudo ip link set ens6 down && sudo ip link set ens6 up"
+
 echo "✅ Installation complete! Check service status with:"
 echo "   sudo systemctl status proxy-client"
 echo "   journalctl -u proxy-client -f"
