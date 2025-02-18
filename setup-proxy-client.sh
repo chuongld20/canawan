@@ -13,6 +13,9 @@ sudo apt update && sudo apt install -y unzip wget
 INSTALL_DIR="/config/proxy-service/client"
 mkdir -p "$INSTALL_DIR"
 
+echo "--- Clear folder"
+rm -rf $INSTALL_DIR/*
+
 echo "🔹 Downloading proxy client..."
 wget -O /tmp/BigCat.Proxy.Client.zip "https://dev-proxy-api.canawan.com/proxy/BigCat.Proxy.Client.zip"
 
