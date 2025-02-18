@@ -24,7 +24,7 @@ unzip -o /tmp/BigCat.Proxy.Client.zip -d "$INSTALL_DIR"
 rm /tmp/BigCat.Proxy.Client.zip
 
 echo "Granting execute permission to $INSTALL_DIR/BigCat.Proxy.Client"
-chmod +x "$INSTALL_DIR/BigCat.Proxy.Client"
+sudo chmod +x "$INSTALL_DIR/BigCat.Proxy.Client"
 
 echo "🔹 Stopping and removing old proxy-client service if exists..."
 sudo systemctl stop proxy-client 2>/dev/null || true
@@ -76,7 +76,7 @@ echo "🔹 Reloading systemd..."
 sudo systemctl daemon-reload
 
 echo "🔹 Setting execute permissions..."
-chmod +x /config/proxy-service/client/BigCat.Proxy.Client
+sudo chmod +x /config/proxy-service/client/BigCat.Proxy.Client
 
 echo "🔹 Enabling and starting service..."
 sudo systemctl enable --now proxy-client
