@@ -67,6 +67,9 @@ StandardError=append:/var/log/proxy-client-error.log
 [Install]
 WantedBy=multi-user.target
 EOF
+
+sleep 5
+
 sudo chmod 644 $SERVICE_FILE
 
 echo "🔹 Reloading systemd..."
