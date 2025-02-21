@@ -6,6 +6,17 @@ echo "✅ Detecting server public IP..."
 PUBLIC_IP=$(curl -s4 ifconfig.me || curl -s4 icanhazip.com)
 echo "   → Detected IP: $PUBLIC_IP"
 
+if systemctl list-unit-files | grep -q "proxy-client.service"; then
+    if systemctl is-active --quiet proxy-client; then
+        systemctl stop proxy-client
+        echo "Stoped service proxy-client."
+    else
+        echo "Service proxy-client not running."
+    fi
+else
+    echo "Service proxy-client not found"
+fi
+
 echo "🔹 Updating system and installing unzip..."
 sudo apt update && sudo apt install -y unzip wget
 
