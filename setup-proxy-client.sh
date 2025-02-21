@@ -94,6 +94,9 @@ sudo systemctl enable --now proxy-client
 
 echo "🔹 Restarting network interface ens6"
 sudo netplan apply
+
+sudo ip -6 addr flush dev ens6
+
 sudo ip link set ens6 down
 sudo ip link set ens6 up
 
