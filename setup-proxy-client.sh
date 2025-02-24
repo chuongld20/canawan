@@ -47,38 +47,41 @@ echo "🔹 Creating new systemd service..."
 SERVICE_FILE="/etc/systemd/system/proxy-client.service"
 sudo rm -f SERVICE_FILE
 
+cd $INSTALL_DIR
 
-sudo tee "$SERVICE_FILE" > /dev/null <<EOF
-[Unit]
-Description=Proxy Client Service
-After=network.target
+nohup "./BigCat.Proxy.Client --defaultServerEndPointIP=$PUBLIC_IP --portAPI=9000 --passwordAPI=66778899 --defaultPortIPv4=9010 --maxConnections=-1 --maxConnectionPerCredential=-1 --networkInterface=ens6 --ipV6RotationSeconds=-1 --fromPort=20000 --toPort=30000 --autoOffAllFirewall=true     --autoConfigPortFirewall=false     --showFullDebug=true     > /var/log/proxy-client.log 2>&1 &"
 
-[Service]
-Environment="LD_LIBRARY_PATH=/config/proxy-service/client"
-User=root
-WorkingDirectory=$INSTALL_DIR
-ExecStartPre=/bin/chmod +x $INSTALL_DIR/BigCat.Proxy.Client
-ExecStart=/bin/bash -c "cd $INSTALL_DIR && ./BigCat.Proxy.Client \
-    --defaultServerEndPointIP=$PUBLIC_IP \
-    --portAPI=9000 \
-    --passwordAPI=66778899 \
-    --defaultPortIPv4=9010 \
-    --maxConnections=-1 \
-    --maxConnectionPerCredential=-1 \
-    --networkInterface=ens6 \
-    --ipV6RotationSeconds=-1 \
-    --fromPort=20000 \
-    --toPort=30000 \
-    --autoOffAllFirewall=true \
-    --autoConfigPortFirewall=false \
-    --showFullDebug=false"
-Restart=always
-StandardOutput=append:/var/log/proxy-client.log
-StandardError=append:/var/log/proxy-client-error.log
+# sudo tee "$SERVICE_FILE" > /dev/null <<EOF
+# [Unit]
+# Description=Proxy Client Service
+# After=network.target
 
-[Install]
-WantedBy=multi-user.target
-EOF
+# [Service]
+# Environment="LD_LIBRARY_PATH=/config/proxy-service/client"
+# User=root
+# WorkingDirectory=$INSTALL_DIR
+# ExecStartPre=/bin/chmod +x $INSTALL_DIR/BigCat.Proxy.Client
+# ExecStart=/bin/bash -c "cd $INSTALL_DIR && ./BigCat.Proxy.Client \
+#     --defaultServerEndPointIP=$PUBLIC_IP \
+#     --portAPI=9000 \
+#     --passwordAPI=66778899 \
+#     --defaultPortIPv4=9010 \
+#     --maxConnections=-1 \
+#     --maxConnectionPerCredential=-1 \
+#     --networkInterface=ens6 \
+#     --ipV6RotationSeconds=-1 \
+#     --fromPort=20000 \
+#     --toPort=30000 \
+#     --autoOffAllFirewall=true \
+#     --autoConfigPortFirewall=false \
+#     --showFullDebug=false"
+# Restart=always
+# StandardOutput=append:/var/log/proxy-client.log
+# StandardError=append:/var/log/proxy-client-error.log
+
+# [Install]
+# WantedBy=multi-user.target
+# EOF
 
 sleep 5
 
