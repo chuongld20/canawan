@@ -72,7 +72,7 @@ Environment="LD_LIBRARY_PATH=/config/proxy-service/client"
 User=root
 WorkingDirectory=$INSTALL_DIR
 ExecStartPre=/bin/chmod +x $INSTALL_DIR/BigCat.Proxy.Client
-ExecStart=/bin/bash -c '$INSTALL_DIR/BigCat.Proxy.Client \
+ExecStart=$INSTALL_DIR/BigCat.Proxy.Client \
     --defaultServerEndPointIP=$PUBLIC_IP \
     --portAPI=9000 \
     --passwordAPI=66778899 \
@@ -85,7 +85,7 @@ ExecStart=/bin/bash -c '$INSTALL_DIR/BigCat.Proxy.Client \
     --toPort=30000 \
     --autoOffAllFirewall=true \
     --autoConfigPortFirewall=false \
-    --showFullDebug=false'
+    --showFullDebug=false
 Restart=always
 StandardOutput=append:/var/log/proxy-client.log
 StandardError=append:/var/log/proxy-client-error.log
