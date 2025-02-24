@@ -43,13 +43,17 @@ sudo systemctl disable proxy-client 2>/dev/null || true
 
 timeout 10 pkill -9 -f BigCat.Proxy.Client || echo "⚠️ Process not found or timeout reached."
 sudo ip -6 addr flush dev ens6
+
 sleep 5
 
+sudo ip link set ens6 down
+echo "down ens6"
+sleep 5
+sudo ip link set ens6 up
+
+echo "apply"
+sleep 5 
 netplan apply
-# sudo ip link set ens6 down
-# echo "down ens6"
-# sleep 5
-# sudo ip link set ens6 up
 
 echo "🔹 Creating new systemd service..."
 SERVICE_FILE="/etc/systemd/system/proxy-client.service"
