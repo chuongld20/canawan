@@ -37,25 +37,11 @@ rm /tmp/BigCat.Proxy.Client.zip
 echo "Granting execute permission to $INSTALL_DIR/BigCat.Proxy.Client"
 sudo chmod +x "$INSTALL_DIR/BigCat.Proxy.Client"
 
-nohup $INSTALL_DIR/BigCat.Proxy.Client \
-    --defaultServerEndPointIP=$PUBLIC_IP \
-    --portAPI=9000 \
-    --passwordAPI=66778899 \
-    --defaultPortIPv4=9010 \
-    --maxConnections=-1 \
-    --maxConnectionPerCredential=-1 \
-    --networkInterface=ens6 \
-    --ipV6RotationSeconds=-1 \
-    --fromPort=20000 \
-    --toPort=30000 \
-    --autoOffAllFirewall=true \
-    --autoConfigPortFirewall=false \
-    --showFullDebug=true \
-    > /var/log/proxy-client.log 2>&1 &
-    
 echo "🔹 Stopping and removing old proxy-client service if exists..."
 sudo systemctl stop proxy-client 2>/dev/null || true
 sudo systemctl disable proxy-client 2>/dev/null || true
+
+pkill -f BigCat.Proxy.Client
 
 echo "🔹 Creating new systemd service..."
 SERVICE_FILE="/etc/systemd/system/proxy-client.service"
@@ -72,7 +58,7 @@ Environment="LD_LIBRARY_PATH=/config/proxy-service/client"
 User=root
 WorkingDirectory=$INSTALL_DIR
 ExecStartPre=/bin/chmod +x $INSTALL_DIR/BigCat.Proxy.Client
-ExecStart=$INSTALL_DIR/BigCat.Proxy.Client \
+ExecStart=cd $INSTALL_DIR && ./BigCat.Proxy.Client \
     --defaultServerEndPointIP=$PUBLIC_IP \
     --portAPI=9000 \
     --passwordAPI=66778899 \
