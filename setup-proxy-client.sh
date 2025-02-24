@@ -41,7 +41,7 @@ echo "🔹 Stopping and removing old proxy-client service if exists..."
 sudo systemctl stop proxy-client 2>/dev/null || true
 sudo systemctl disable proxy-client 2>/dev/null || true
 
-pkill -f BigCat.Proxy.Client
+timeout 10 pkill -9 -f BigCat.Proxy.Client || echo "⚠️ Process not found or timeout reached."
 sudo ip -6 addr flush dev ens6
 
 echo "🔹 Creating new systemd service..."
