@@ -2,6 +2,13 @@
 
 set -e  # Exit immediately if any command fails
 
+grep -qxF "root soft nofile 65535" /etc/security/limits.conf || echo "root soft nofile 65535" | sudo tee -a /etc/security/limits.conf
+grep -qxF "root hard nofile 65535" /etc/security/limits.conf || echo "root hard nofile 65535" | sudo tee -a /etc/security/limits.conf
+
+su - root
+
+ulimit -n
+
 echo "✅ Detecting server public IP..."
 PUBLIC_IP=$(curl -s4 ifconfig.me || curl -s4 icanhazip.com)
 echo "   → Detected IP: $PUBLIC_IP"
@@ -16,13 +23,6 @@ if systemctl list-unit-files | grep -q "proxy-client.service"; then
 else
     echo "Service proxy-client not found"
 fi
-
-grep -qxF "root soft nofile 65535" /etc/security/limits.conf || echo "root soft nofile 65535" | sudo tee -a /etc/security/limits.conf
-grep -qxF "root hard nofile 65535" /etc/security/limits.conf || echo "root hard nofile 65535" | sudo tee -a /etc/security/limits.conf
-
-su - root
-
-ulimit -n
 
 echo "🔹 Updating system and installing unzip..."
 sudo apt update && sudo apt install -y unzip wget
