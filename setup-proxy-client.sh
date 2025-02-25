@@ -17,6 +17,9 @@ else
     echo "Service proxy-client not found"
 fi
 
+grep -qxF "root soft nofile 65535" /etc/security/limits.conf || echo "root soft nofile 65535" | sudo tee -a /etc/security/limits.conf
+grep -qxF "root hard nofile 65535" /etc/security/limits.conf || echo "root hard nofile 65535" | sudo tee -a /etc/security/limits.conf
+
 echo "🔹 Updating system and installing unzip..."
 sudo apt update && sudo apt install -y unzip wget
 
