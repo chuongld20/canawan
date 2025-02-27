@@ -68,44 +68,44 @@ cd $INSTALL_DIR
 
 # nohup ./BigCat.Proxy.Client --defaultServerEndPointIP=$PUBLIC_IP --portAPI=9000 --passwordAPI=66778899 --defaultPortIPv4=9010 --maxConnections=-1 --maxConnectionPerCredential=-1 --networkInterface=ens6 --ipV6RotationSeconds=-1 --fromPort=20000 --toPort=30000 --autoOffAllFirewall=true     --autoConfigPortFirewall=false     --showFullDebug=true > /var/log/proxy-client.log 2>&1 &
 
-sudo tee "/config/proxy-service/start_proxy.sh" > /dev/null <<EOF
+sudo tee "/config/proxy-service/start_proxy.sh" > /dev/null <<EOL
 #!/bin/bash
 
 LOG_FILE="/var/log/proxy-client.log"
 LOG_FILE_CHECK="/var/log/proxy-client-check.log"
 
-WORK_DIR=${1:-"/opt/proxy-client"}
-DEFAULT_IP=${2:-"192.168.1.100"}
-PORT_API=${3:-9000}
-PASSWORD_API=${4:-"66778899"}
-PORT_IPV4=${5:-9010}
-NETWORK_INTERFACE=${6:-"ens6"}
-FROM_PORT=${7:-20000}
-TO_PORT=${8:-30000}
+WORK_DIR=\${1:-"/opt/proxy-client"}
+DEFAULT_IP=\${2:-"192.168.1.100"}
+PORT_API=\${3:-9000}
+PASSWORD_API=\${4:-"66778899"}
+PORT_IPV4=\${5:-9010}
+NETWORK_INTERFACE=\${6:-"ens6"}
+FROM_PORT=\${7:-20000}
+TO_PORT=\${8:-30000}
 
-API_URL="http://$DEFAULT_IP:$PORT_API/apiProxy/list"
+API_URL="http://\$DEFAULT_IP:\$PORT_API/apiProxy/list"
 WEBHOOK_URL="https://it-n8n.canawan.com/webhook/worker-server-notice"
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') - Starting BigCat.Proxy.Client..." | tee -a "$LOG_FILE_CHECK"
+echo "\$(date '+%Y-%m-%d %H:%M:%S') - Starting BigCat.Proxy.Client..." | tee -a "\$LOG_FILE_CHECK"
 
-cd "$WORK_DIR" || exit 1
+cd "\$WORK_DIR" || exit 1
 
-./BigCat.Proxy.Client \
-    --defaultServerEndPointIP="$DEFAULT_IP" \
-    --portAPI="$PORT_API" \
-    --passwordAPI="$PASSWORD_API" \
-    --defaultPortIPv4="$PORT_IPV4" \
-    --maxConnections=-1 \
-    --maxConnectionPerCredential=-1 \
-    --networkInterface="$NETWORK_INTERFACE" \
-    --ipV6RotationSeconds=-1 \
-    --fromPort="$FROM_PORT" \
-    --toPort="$TO_PORT" \
-    --autoOffAllFirewall=true \
-    --autoConfigPortFirewall=false \
-    --showFullDebug=false \
-    >> "$LOG_FILE" 2>&1
-EOF
+./BigCat.Proxy.Client \\
+    --defaultServerEndPointIP="\$DEFAULT_IP" \\
+    --portAPI="\$PORT_API" \\
+    --passwordAPI="\$PASSWORD_API" \\
+    --defaultPortIPv4="\$PORT_IPV4" \\
+    --maxConnections=-1 \\
+    --maxConnectionPerCredential=-1 \\
+    --networkInterface="\$NETWORK_INTERFACE" \\
+    --ipV6RotationSeconds=-1 \\
+    --fromPort="\$FROM_PORT" \\
+    --toPort="\$TO_PORT" \\
+    --autoOffAllFirewall=true \\
+    --autoConfigPortFirewall=false \\
+    --showFullDebug=false \\
+    >> "\$LOG_FILE" 2>&1
+EOL
 
 sudo chmod +x /config/proxy-service/start_proxy.sh
 
