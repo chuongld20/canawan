@@ -35,7 +35,7 @@ echo "--- Clear folder"
 rm -rf $INSTALL_DIR/*
 
 echo "🔹 Downloading proxy client..."
-wget -O /tmp/BigCat.Proxy.Client.zip "https://dev-proxy-api.canawan.com/proxy/BigCat.Proxy.Client-1.0.6.9.zip?$(date +%s)"
+wget -O /tmp/BigCat.Proxy.Client.zip "https://dev-proxy-api.canawan.com/proxy/BigCat.Proxy.Client-1.0.7.1.zip?$(date +%s)"
 
 echo "🔹 Extracting files..."
 unzip -o /tmp/BigCat.Proxy.Client.zip -d "$INSTALL_DIR"
