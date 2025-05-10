@@ -66,7 +66,7 @@ sudo rm -f $SERVICE_FILE
 
 cd $INSTALL_DIR
 
-sudo tee "/config/proxy-service/start_proxy_BigCat.Proxy.ClientV2.zip.sh" > /dev/null <<EOL
+sudo tee "/config/proxy-service/start_proxy_v2.sh" > /dev/null <<EOL
 #!/bin/bash
 
 LOG_FILE="/var/log/proxy-client.log"
