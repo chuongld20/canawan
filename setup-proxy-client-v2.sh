@@ -78,8 +78,8 @@ PORT_API=\${3:-9000}
 PASSWORD_API=\${4:-"66778899"}
 PORT_IPV4=\${5:-9010}
 NETWORK_INTERFACE=\${6:-"ens6"}
-FROM_PORT=\${7:-20000}
-TO_PORT=\${8:-30000}
+FROM_PORT=\${7:-10000}
+TO_PORT=\${8:-50000}
 
 API_URL="http://\$DEFAULT_IP:\$PORT_API/apiProxy/list"
 WEBHOOK_URL="https://it-n8n.canawan.com/webhook/worker-server-notice"
@@ -97,6 +97,8 @@ cd "\$WORK_DIR" || exit 1
     --networkInterface="\$NETWORK_INTERFACE" \\
     --fromPort="\$FROM_PORT" \\
     --toPort="\$TO_PORT" \\
+    --limitPerProcess=500 \\
+    --autoClearLog=true \\
     --showFullDebug=false \\
     >> "\$LOG_FILE" 2>&1
 EOL
