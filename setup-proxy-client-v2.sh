@@ -25,7 +25,7 @@ else
 fi
 
 echo "🔹 Updating system and installing unzip..."
-sudo apt update && sudo apt install -y unzip wget
+sudo apt install -y unzip wget
 
 # Create installation directory
 INSTALL_DIR="/config/proxy-service/client"
