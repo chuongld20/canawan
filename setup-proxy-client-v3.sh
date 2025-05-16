@@ -60,6 +60,12 @@ echo "apply"
 sleep 5 
 netplan apply
 
+
+echo "Allow port"
+ufw allow 9000
+ufw allow 9010
+ufw allow 39000:60000/tcp
+
 echo "🔹 Creating new systemd service..."
 SERVICE_FILE="/etc/systemd/system/proxy-client.service"
 sudo rm -f $SERVICE_FILE
