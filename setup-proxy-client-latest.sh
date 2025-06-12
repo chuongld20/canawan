@@ -37,6 +37,7 @@ check_required_vars() {
         echo "   export PORT_IPV4=9010"
         echo "   export FROM_PORT=20000"
         echo "   export TO_PORT=50000"
+        echo "   export TRUST_PROXY=http://user:pass@proxy:port  # Optional, for DNS resolution issues"
         echo ""
         echo "Then run: curl -sSL https://your-script-url.sh | bash"
         exit 1
@@ -59,6 +60,67 @@ echo "   API Port: $PORT_API_CONFIG"
 echo "   IPv4 Port: $PORT_IPV4_CONFIG"
 echo "   Port Range: $FROM_PORT_CONFIG-$TO_PORT_CONFIG"
 
+# Function to perform HTTP requests with DNS fallback
+perform_request_with_fallback() {
+    local url="$1"
+    local output_file="$2"
+    local max_retries=3
+    local retry_count=0
+    
+    while [ $retry_count -lt $max_retries ]; do
+        echo "🌐 Attempt $((retry_count + 1))/$max_retries: Requesting $url"
+        
+        if [ -n "$output_file" ]; then
+            # Download to file
+            if wget -O "$output_file" "$url" 2>/dev/null; then
+                echo "✅ Successfully downloaded via direct connection"
+                return 0
+            fi
+        else
+            # Get content (for IP detection)
+            local result
+            result=$(curl -s4 "$url" 2>/dev/null)
+            if [ $? -eq 0 ] && [ -n "$result" ]; then
+                echo "$result"
+                return 0
+            fi
+        fi
+        
+        echo "⚠️ Request failed, checking if DNS resolution error..."
+        
+        # Try with proxy for DNS resolution issues
+        echo "🔄 Retrying with trust proxy: $TRUST_PROXY"
+        
+        if [ -n "$output_file" ]; then
+            # Download to file with proxy
+            if wget --proxy=on --https-proxy="$TRUST_PROXY" --http-proxy="$TRUST_PROXY" -O "$output_file" "$url" 2>/dev/null; then
+                echo "✅ Successfully downloaded via trust proxy"
+                return 0
+            fi
+        else
+            # Get content with proxy
+            local result
+            result=$(curl -s4 --proxy "$TRUST_PROXY" "$url" 2>/dev/null)
+            if [ $? -eq 0 ] && [ -n "$result" ]; then
+                echo "$result"
+                return 0
+            fi
+        fi
+        
+        retry_count=$((retry_count + 1))
+        if [ $retry_count -lt $max_retries ]; then
+            echo "⏳ Waiting 3 seconds before retry..."
+            sleep 3
+        fi
+    done
+    
+    echo "❌ All attempts failed for: $url"
+    return 1
+}
+
+# Set default TRUST_PROXY if not provided
+TRUST_PROXY=${TRUST_PROXY:-"http://ud6Mx7pY:GmuwPQxRG4wR@104.167.228.92:20298"}
+
 # Debug: Show all environment variables for troubleshooting
 echo "🐛 Environment variables debug:"
 echo "   NETWORK_INTERFACE='$NETWORK_INTERFACE'"
@@ -66,6 +128,7 @@ echo "   PORT_API='$PORT_API'"
 echo "   PORT_IPV4='$PORT_IPV4'"
 echo "   FROM_PORT='$FROM_PORT'"
 echo "   TO_PORT='$TO_PORT'"
+echo "   TRUST_PROXY='$TRUST_PROXY'"
 
 grep -qxF "root soft nofile 65535" /etc/security/limits.conf || echo "root soft nofile 65535" | sudo tee -a /etc/security/limits.conf
 grep -qxF "root hard nofile 65535" /etc/security/limits.conf || echo "root hard nofile 65535" | sudo tee -a /etc/security/limits.conf
@@ -74,7 +137,14 @@ grep -qxF "root hard nofile 65535" /etc/security/limits.conf || echo "root hard 
 ulimit -n 65535 2>/dev/null || echo "⚠️ Could not set ulimit, continuing..."
 
 echo "✅ Detecting server public IP..."
-PUBLIC_IP=$(curl -s4 ifconfig.me || curl -s4 icanhazip.com)
+PUBLIC_IP=$(perform_request_with_fallback "https://ifconfig.me")
+if [ -z "$PUBLIC_IP" ]; then
+    PUBLIC_IP=$(perform_request_with_fallback "https://icanhazip.com")
+fi
+if [ -z "$PUBLIC_IP" ]; then
+    echo "❌ Failed to detect public IP address"
+    exit 1
+fi
 echo "   → Detected IP: $PUBLIC_IP"
 
 if systemctl list-unit-files | grep -q "proxy-client.service"; then
@@ -99,7 +169,10 @@ echo "--- Clear folder"
 rm -rf $INSTALL_DIR/*
 
 echo "🔹 Downloading proxy client..."
-wget -O /tmp/BigCat.Proxy.ClientV2.zip "https://dev-proxy-api.canawan.com/proxy/BigCat.Proxy.ClientV2.zip?$(date +%s)"
+if ! perform_request_with_fallback "https://dev-proxy-api.canawan.com/proxy/BigCat.Proxy.ClientV2.zip?$(date +%s)" "/tmp/BigCat.Proxy.ClientV2.zip"; then
+    echo "❌ Failed to download proxy client after all attempts"
+    exit 1
+fi
 
 echo "🔹 Extracting files..."
 unzip -o /tmp/BigCat.Proxy.ClientV2.zip -d "$INSTALL_DIR"
