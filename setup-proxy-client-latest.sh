@@ -59,12 +59,19 @@ echo "   API Port: $PORT_API_CONFIG"
 echo "   IPv4 Port: $PORT_IPV4_CONFIG"
 echo "   Port Range: $FROM_PORT_CONFIG-$TO_PORT_CONFIG"
 
+# Debug: Show all environment variables for troubleshooting
+echo "🐛 Environment variables debug:"
+echo "   NETWORK_INTERFACE='$NETWORK_INTERFACE'"
+echo "   PORT_API='$PORT_API'"
+echo "   PORT_IPV4='$PORT_IPV4'"
+echo "   FROM_PORT='$FROM_PORT'"
+echo "   TO_PORT='$TO_PORT'"
+
 grep -qxF "root soft nofile 65535" /etc/security/limits.conf || echo "root soft nofile 65535" | sudo tee -a /etc/security/limits.conf
 grep -qxF "root hard nofile 65535" /etc/security/limits.conf || echo "root hard nofile 65535" | sudo tee -a /etc/security/limits.conf
 
-su - root
-
-ulimit -n
+# Set ulimit without switching user (which would lose environment variables)
+ulimit -n 65535 2>/dev/null || echo "⚠️ Could not set ulimit, continuing..."
 
 echo "✅ Detecting server public IP..."
 PUBLIC_IP=$(curl -s4 ifconfig.me || curl -s4 icanhazip.com)
