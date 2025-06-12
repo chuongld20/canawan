@@ -128,42 +128,57 @@ sudo rm -f $SERVICE_FILE
 
 cd $INSTALL_DIR
 
-sudo tee "/config/proxy-service/start_proxy_v2.sh" > /dev/null <<EOL
+# Create the start script with direct variable substitution
+echo "🔹 Creating start script with configuration..."
+cat > "/config/proxy-service/start_proxy_v2.sh" << 'START_SCRIPT_EOF'
 #!/bin/bash
 
 LOG_FILE="/var/log/proxy-client.log"
 LOG_FILE_CHECK="/var/log/proxy-client-check.log"
 
-WORK_DIR=\${1:-"/config/proxy-service/client"}
-DEFAULT_IP=\${2:-"192.168.1.100"}
-PORT_API=\${3:-$PORT_API_CONFIG}
-PASSWORD_API=\${4:-"66778899"}
-PORT_IPV4=\${5:-$PORT_IPV4_CONFIG}
-NETWORK_INTERFACE=\${6:-"$NETWORK_INTERFACE_CONFIG"}
-FROM_PORT=\${7:-$FROM_PORT_CONFIG}
-TO_PORT=\${8:-$TO_PORT_CONFIG}
+WORK_DIR=${1:-"/config/proxy-service/client"}
+DEFAULT_IP=${2:-"192.168.1.100"}
+PORT_API=${3:-PLACEHOLDER_PORT_API}
+PASSWORD_API=${4:-"66778899"}
+PORT_IPV4=${5:-PLACEHOLDER_PORT_IPV4}
+NETWORK_INTERFACE=${6:-"PLACEHOLDER_NETWORK_INTERFACE"}
+FROM_PORT=${7:-PLACEHOLDER_FROM_PORT}
+TO_PORT=${8:-PLACEHOLDER_TO_PORT}
 
-API_URL="http://\$DEFAULT_IP:\$PORT_API/apiProxy/list"
+API_URL="http://$DEFAULT_IP:$PORT_API/apiProxy/list"
 
-echo "\$(date '+%Y-%m-%d %H:%M:%S') - Starting BigCat.Proxy.Client..." | tee -a "\$LOG_FILE_CHECK"
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Starting BigCat.Proxy.Client..." | tee -a "$LOG_FILE_CHECK"
 
-cd "\$WORK_DIR" || exit 1
+cd "$WORK_DIR" || exit 1
 
-./BigCat.Proxy.Hades \\
-    --defaultServerEndPointIP="\$DEFAULT_IP" \\
-    --portAPI="\$PORT_API" \\
-    --passwordAPI="\$PASSWORD_API" \\
-    --defaultPortIPv4="\$PORT_IPV4" \\
-    --networkInterface="\$NETWORK_INTERFACE" \\
-    --fromPort="\$FROM_PORT" \\
-    --toPort="\$TO_PORT" \\
-    --limitPerProcess=500 \\
-    --autoClearLog=true \\
-    --fromInternalPort=\$((FROM_PORT - 1000)) \\
-    --optimizeIPv6=false \\
-    --showFullDebug=false \\
-    >> "\$LOG_FILE" 2>&1
-EOL
+./BigCat.Proxy.Hades \
+    --defaultServerEndPointIP="$DEFAULT_IP" \
+    --portAPI="$PORT_API" \
+    --passwordAPI="$PASSWORD_API" \
+    --defaultPortIPv4="$PORT_IPV4" \
+    --networkInterface="$NETWORK_INTERFACE" \
+    --fromPort="$FROM_PORT" \
+    --toPort="$TO_PORT" \
+    --limitPerProcess=500 \
+    --autoClearLog=true \
+    --fromInternalPort=$((FROM_PORT - 1000)) \
+    --optimizeIPv6=false \
+    --showFullDebug=false \
+    >> "$LOG_FILE" 2>&1
+START_SCRIPT_EOF
+
+# Replace placeholders with actual values
+sed -i "s/PLACEHOLDER_PORT_API/$PORT_API_CONFIG/g" /config/proxy-service/start_proxy_v2.sh
+sed -i "s/PLACEHOLDER_PORT_IPV4/$PORT_IPV4_CONFIG/g" /config/proxy-service/start_proxy_v2.sh
+sed -i "s/PLACEHOLDER_NETWORK_INTERFACE/$NETWORK_INTERFACE_CONFIG/g" /config/proxy-service/start_proxy_v2.sh
+sed -i "s/PLACEHOLDER_FROM_PORT/$FROM_PORT_CONFIG/g" /config/proxy-service/start_proxy_v2.sh
+sed -i "s/PLACEHOLDER_TO_PORT/$TO_PORT_CONFIG/g" /config/proxy-service/start_proxy_v2.sh
+
+sudo chmod +x /config/proxy-service/start_proxy_v2.sh
+
+echo "🔹 Verifying start script configuration..."
+echo "   Script contents:"
+head -20 /config/proxy-service/start_proxy_v2.sh | grep -E "(PORT_API|PORT_IPV4|NETWORK_INTERFACE|FROM_PORT|TO_PORT)="
 
 sudo chmod +x /config/proxy-service/start_proxy_v2.sh
 
