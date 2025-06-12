@@ -76,6 +76,34 @@ perform_request_with_fallback() {
                 echo "✅ Successfully downloaded via direct connection"
                 return 0
             fi
+            
+            # Check if it's a DNS-related error by trying to resolve the hostname
+            local hostname=$(echo "$url" | sed -E 's|https?://([^/]+).*|\1|')
+            if ! nslookup "$hostname" >/dev/null 2>&1; then
+                echo "⚠️ DNS resolution failed for $hostname, trying with trust proxy..."
+                
+                # Method 1: Try with environment variables (most compatible)
+                if env http_proxy="$TRUST_PROXY" https_proxy="$TRUST_PROXY" wget -O "$output_file" "$url" 2>/dev/null; then
+                    echo "✅ Successfully downloaded via trust proxy (env vars)"
+                    return 0
+                fi
+                
+                # Method 2: Try with wget -e options
+                if wget -e use_proxy=yes -e http_proxy="$TRUST_PROXY" -e https_proxy="$TRUST_PROXY" -O "$output_file" "$url" 2>/dev/null; then
+                    echo "✅ Successfully downloaded via trust proxy (wget -e)"
+                    return 0
+                fi
+                
+                # Method 3: Try with curl as fallback
+                if command -v curl >/dev/null 2>&1; then
+                    if curl -L --proxy "$TRUST_PROXY" -o "$output_file" "$url" 2>/dev/null; then
+                        echo "✅ Successfully downloaded via trust proxy (curl fallback)"
+                        return 0
+                    fi
+                fi
+            else
+                echo "⚠️ Network error (not DNS related), retrying..."
+            fi
         else
             # Get content (for IP detection)
             local result
@@ -84,26 +112,21 @@ perform_request_with_fallback() {
                 echo "$result"
                 return 0
             fi
-        fi
-        
-        echo "⚠️ Request failed, checking if DNS resolution error..."
-        
-        # Try with proxy for DNS resolution issues
-        echo "🔄 Retrying with trust proxy: $TRUST_PROXY"
-        
-        if [ -n "$output_file" ]; then
-            # Download to file with proxy
-            if wget --proxy=on --https-proxy="$TRUST_PROXY" --http-proxy="$TRUST_PROXY" -O "$output_file" "$url" 2>/dev/null; then
-                echo "✅ Successfully downloaded via trust proxy"
-                return 0
-            fi
-        else
-            # Get content with proxy
-            local result
-            result=$(curl -s4 --proxy "$TRUST_PROXY" "$url" 2>/dev/null)
-            if [ $? -eq 0 ] && [ -n "$result" ]; then
-                echo "$result"
-                return 0
+            
+            # Check if it's a DNS-related error
+            local hostname=$(echo "$url" | sed -E 's|https?://([^/]+).*|\1|')
+            if ! nslookup "$hostname" >/dev/null 2>&1; then
+                echo "⚠️ DNS resolution failed for $hostname, trying with trust proxy..."
+                
+                # Get content with proxy
+                local result
+                result=$(curl -s4 --proxy "$TRUST_PROXY" "$url" 2>/dev/null)
+                if [ $? -eq 0 ] && [ -n "$result" ]; then
+                    echo "$result"
+                    return 0
+                fi
+            else
+                echo "⚠️ Network error (not DNS related), retrying..."
             fi
         fi
         
