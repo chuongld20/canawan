@@ -208,7 +208,7 @@ echo "🔹 Stopping and removing old proxy-client service if exists..."
 sudo systemctl stop proxy-client 2>/dev/null || true
 sudo systemctl disable proxy-client 2>/dev/null || true
 
-timeout 10 pkill -9 -f BigCat.Proxy.Client || echo "⚠️ Process not found or timeout reached."
+timeout 120 pkill -9 -f BigCat.Proxy.Client || echo "⚠️ Process not found or timeout reached."
 # sudo ip -6 addr flush dev $NETWORK_INTERFACE_CONFIG
 # sleep 5
 # sudo ip link set $NETWORK_INTERFACE_CONFIG down
