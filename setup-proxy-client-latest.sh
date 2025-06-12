@@ -1,12 +1,57 @@
 #!/bin/bash
 set -e  # Exit immediately if any command fails
 
-# Get configuration from environment variables with defaults
-NETWORK_INTERFACE_CONFIG="${NETWORK_INTERFACE:-ens6}"
-PORT_API_CONFIG="${PORT_API:-9000}"
-PORT_IPV4_CONFIG="${PORT_IPV4:-9010}"
-FROM_PORT_CONFIG="${FROM_PORT:-20000}"
-TO_PORT_CONFIG="${TO_PORT:-50000}"
+# Check required environment variables
+check_required_vars() {
+    local missing_vars=()
+    
+    if [ -z "$NETWORK_INTERFACE" ]; then
+        missing_vars+=("NETWORK_INTERFACE")
+    fi
+    
+    if [ -z "$PORT_API" ]; then
+        missing_vars+=("PORT_API")
+    fi
+    
+    if [ -z "$PORT_IPV4" ]; then
+        missing_vars+=("PORT_IPV4")
+    fi
+    
+    if [ -z "$FROM_PORT" ]; then
+        missing_vars+=("FROM_PORT")
+    fi
+    
+    if [ -z "$TO_PORT" ]; then
+        missing_vars+=("TO_PORT")
+    fi
+    
+    if [ ${#missing_vars[@]} -gt 0 ]; then
+        echo "❌ Error: Missing required environment variables:"
+        for var in "${missing_vars[@]}"; do
+            echo "   - $var"
+        done
+        echo ""
+        echo "Usage: Set the following environment variables before running this script:"
+        echo "   export NETWORK_INTERFACE=ens6"
+        echo "   export PORT_API=9000"
+        echo "   export PORT_IPV4=9010"
+        echo "   export FROM_PORT=20000"
+        echo "   export TO_PORT=50000"
+        echo ""
+        echo "Then run: curl -sSL https://your-script-url.sh | bash"
+        exit 1
+    fi
+}
+
+# Check required variables
+check_required_vars
+
+# Get configuration from environment variables (required)
+NETWORK_INTERFACE_CONFIG="$NETWORK_INTERFACE"
+PORT_API_CONFIG="$PORT_API"
+PORT_IPV4_CONFIG="$PORT_IPV4"
+FROM_PORT_CONFIG="$FROM_PORT"
+TO_PORT_CONFIG="$TO_PORT"
 
 echo "🔧 Using configuration:"
 echo "   Network Interface: $NETWORK_INTERFACE_CONFIG"
@@ -89,7 +134,7 @@ sudo tee "/config/proxy-service/start_proxy_v2.sh" > /dev/null <<EOL
 LOG_FILE="/var/log/proxy-client.log"
 LOG_FILE_CHECK="/var/log/proxy-client-check.log"
 
-WORK_DIR=\${1:-"/opt/proxy-client"}
+WORK_DIR=\${1:-"/config/proxy-service/client"}
 DEFAULT_IP=\${2:-"192.168.1.100"}
 PORT_API=\${3:-$PORT_API_CONFIG}
 PASSWORD_API=\${4:-"66778899"}
