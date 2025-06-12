@@ -161,14 +161,7 @@ grep -qxF "root hard nofile 65535" /etc/security/limits.conf || echo "root hard 
 ulimit -n 65535 2>/dev/null || echo "⚠️ Could not set ulimit, continuing..."
 
 echo "✅ Detecting server public IP..."
-PUBLIC_IP=$(perform_request_with_fallback "https://ifconfig.me" "" "")
-if [ -z "$PUBLIC_IP" ]; then
-    PUBLIC_IP=$(perform_request_with_fallback "https://icanhazip.com" "" "")
-fi
-if [ -z "$PUBLIC_IP" ]; then
-    echo "❌ Failed to detect public IP address"
-    exit 1
-fi
+PUBLIC_IP=$(curl -s4 ifconfig.me || curl -s4 icanhazip.com)
 echo "   → Detected IP: $PUBLIC_IP"
 
 if systemctl list-unit-files | grep -q "proxy-client.service"; then
