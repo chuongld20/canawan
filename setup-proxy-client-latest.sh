@@ -186,7 +186,7 @@ echo "--- Clear folder"
 rm -rf $INSTALL_DIR/*
 
 echo "🔹 Downloading proxy client..."
-if ! perform_request_with_fallback "https://dev-proxy-api.canawan.com/proxy/BigCat.Proxy.ClientV2.zip?$(date +%s)" "/tmp/BigCat.Proxy.ClientV2.zip"; then
+if ! perform_request_with_fallback "https://sgp1.digitaloceanspaces.com/aws-canawan-files/proxy-files/BigCat.Proxy.ClientV2.zip" "/tmp/BigCat.Proxy.ClientV2.zip"; then
     echo "❌ Failed to download proxy client after all attempts"
     exit 1
 fi
