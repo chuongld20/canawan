@@ -33,7 +33,7 @@ fi
 # 2. Install 3proxy
 # =============================================
 log "Installing 3proxy..."
-apt-get update -qq
+apt-get update -qq --allow-releaseinfo-change 2>/dev/null || apt-get update -qq 2>/dev/null || true
 apt-get install -y -qq 3proxy >/dev/null 2>&1 || {
     # Fallback: build from source if package not available
     log "Package not found, building from source..."
